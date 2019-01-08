@@ -15,12 +15,16 @@ Debug:
 virsh dumpxml vm1 | DEBUG=true ./qemu vm1 prepare begin -
 ```
 
+ToDo:
+  - delete interface on domain shutdown
+  ...
+
 XML inside virsh edit:
 ```xml
 <domain>
 ...
   <metadata>
-	<my:custom xmlns:my="abe43f05-b1b3-4dd2-ad47-b31967e45413">
+    <my:custom xmlns:my="abe43f05-b1b3-4dd2-ad47-b31967e45413">
       <my:network mac_address="52:54:00:9a:c9:01" parent_device="vlan220"/>
     </my:custom>
   </metadata>
@@ -35,9 +39,9 @@ XML inside Domain description from libvirt-go-xml:
 
 Manual workflow inside hypervisor node:
 ```
-ip link add link vlan220 name macvlan0 type macvlan mode source
-ip link set link dev macvlan0 type macvlan macaddr set 52:54:00:34:e5:01
-ip -d link show dev macvlan0
+ip link add link vlan220 name ifh-9ac901 type macvlan mode source
+ip link set link dev ifh-9ac901 type macvlan macaddr set 52:54:00:34:e5:01
+ip -d link show dev ifh-9ac901
 ```
 
 Chnage MAC inside VM, security check:
@@ -53,10 +57,11 @@ XML inside Libvirt Domain:
     ...
     <interface type='direct'>
       <mac address='52:54:00:9a:c9:01'/>
-      <source dev='macvlan0' mode='bridge'/>
+      <source dev='ifh-9ac901' mode='bridge'/>
+      <target dev='ifl-9ac901'/>
       <model type='virtio'/>
-	  </interface>
-	...
+    </interface>
+    ...
   </devices>
 ...
 </domain>
