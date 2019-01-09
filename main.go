@@ -21,17 +21,14 @@ func main() {
 		os.Exit(0)
 	}
 
-	// validate number of arguments
-	if len(os.Args) != 5 {
-		GracefullExit(fmt.Errorf("incorrect number of arguments provided, must equal 5, supplied %d", len(os.Args)))
-	}
+	switch os.Args[2] {
 
 	// switch on: `qemu vm1 {prepare} begin -`
-	switch os.Args[2] {
 	case "prepare":
 
-		// switch on: `qemu vm1 prepare {begin} -`
 		switch os.Args[3] {
+
+		// switch on: `qemu vm1 prepare {begin} -`
 		case "begin":
 
 			// get Libvirt Domain XML as object
@@ -56,7 +53,47 @@ func main() {
 				}
 
 			} else {
-				// do debug printing (virsh dumpxml vm1 | DEBUG=true ./qemu vm1 start begin -)
+				// do debug printing (virsh dumpxml vm1 | DEBUG=true ./qemu vm1 prepare begin -)
+				for _, el := range cfg {
+					fmt.Printf("MAC '%s', Parent device '%s', Child device '%s'\n", el.MAC, el.ParentDevice, el.ChildDevice)
+				}
+			}
+
+		default:
+			GracefullExit(nil)
+		}
+
+	// switch on: `qemu vm1 {stopped} end -`
+	case "stopped":
+
+		switch os.Args[3] {
+
+		// switch on: `qemu vm1 stopped {end} -`
+		case "end":
+
+			// get Libvirt Domain XML as object
+			domCfg, err := GetDomainXML(os.Stdin)
+			if err != nil {
+				GracefullExit(err)
+			}
+
+			// parse Libvirt Domain XML to get MAC Anti-Spoof Config
+			cfg, err := GetAntiSpoofConfig(domCfg)
+			if err != nil {
+				GracefullExit(err)
+			}
+
+			// check debug flag
+			if !strings.EqualFold(os.Getenv("DEBUG"), "true") {
+
+				// de-apply MAC Anti-Spoof Config
+				err = UnConfigMacAntiSpoof(cfg)
+				if err != nil {
+					GracefullExit(err)
+				}
+
+			} else {
+				// do debug printing (virsh dumpxml vm1 | DEBUG=true ./qemu vm1 stopped end -)
 				for _, el := range cfg {
 					fmt.Printf("MAC '%s', Parent device '%s', Child device '%s'\n", el.MAC, el.ParentDevice, el.ChildDevice)
 				}

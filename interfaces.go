@@ -48,14 +48,7 @@ func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]
 			domCfg.Devices.Interfaces[i].Source.Hostdev != nil ||
 			domCfg.Devices.Interfaces[i].Source.UDP != nil {
 
-			customErrors = append(customErrors, fmt.Sprintf("device type with MAC '%s' is not supported", domCfg.Devices.Interfaces[i].MAC.Address))
-
-			continue
-		}
-
-		// validate MAC address
-		if !strings.HasPrefix(domCfg.Devices.Interfaces[i].MAC.Address, MACAddressQemuPrefix) {
-			customErrors = append(customErrors, fmt.Sprintf("MAC '%s' is not valid", domCfg.Devices.Interfaces[i].MAC.Address))
+			// customErrors = append(customErrors, fmt.Sprintf("device type with MAC '%s' is not supported", domCfg.Devices.Interfaces[i].MAC.Address))
 
 			continue
 		}
@@ -70,6 +63,13 @@ func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]
 		// check if 'Direct' device type has proper mode set (bridge or private)
 		if !strings.EqualFold(domCfg.Devices.Interfaces[i].Source.Direct.Mode, "bridge") && !strings.EqualFold(domCfg.Devices.Interfaces[i].Source.Direct.Mode, "private") {
 			customErrors = append(customErrors, fmt.Sprintf("device of 'Direct' type with MAC '%s' must have mode set to 'bridge' or 'private'", domCfg.Devices.Interfaces[i].MAC.Address))
+
+			continue
+		}
+
+		// validate MAC address
+		if !strings.HasPrefix(domCfg.Devices.Interfaces[i].MAC.Address, MACAddressQemuPrefix) {
+			customErrors = append(customErrors, fmt.Sprintf("MAC '%s' is not valid", domCfg.Devices.Interfaces[i].MAC.Address))
 
 			continue
 		}
