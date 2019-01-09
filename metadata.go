@@ -24,13 +24,16 @@ type DomainMetadata struct {
 // GetNetworkConfigFromMetadataXML parses Libvirt domain XML and returns map[string]string (key = MAC address, value = parent device)
 func GetNetworkConfigFromMetadataXML(domCfg *libvirtxml.Domain) (map[string]string, error) {
 
+	// prefix for metadata errors logging
+	const errPrefix = "metadata error:"
+
 	// check Domain existence
 	if domCfg == nil {
-		return nil, fmt.Errorf("metadata error: empty Domain XML")
-	}
+		e := fmt.Errorf("%s empty Domain XML", errPrefix)
+		Logger.Println(e)
 
-	// declare custom error strings
-	customErrors := make([]string, 0)
+		return nil, e
+	}
 
 	// declare output map
 	out := make(map[string]string)
@@ -40,29 +43,44 @@ func GetNetworkConfigFromMetadataXML(domCfg *libvirtxml.Domain) (map[string]stri
 
 	// check metada existence
 	if domCfg.Metadata == nil {
-		return nil, fmt.Errorf("metadata error: no metadata inside Domain XML")
+		e := fmt.Errorf("%s no metadata inside Domain '%s' XML", errPrefix, domCfg.Name)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// decode XML to metadata object
 	err := xml.Unmarshal([]byte(domCfg.Metadata.XML), metadata)
 	if err != nil {
-		return nil, fmt.Errorf("metadata error: %s", err.Error())
+		e := fmt.Errorf("%s Domain '%s' error: %s", errPrefix, domCfg.Name, err.Error())
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// validate metadata XMLNS
 	if !strings.EqualFold(MetaDataNameSpace, metadata.XMLName.Space) || !strings.EqualFold(MetaDataNameSpace, metadata.My) {
-		return nil, fmt.Errorf("metadata error: XML namespace must be equal to '%s'", MetaDataNameSpace)
+		e := fmt.Errorf("%s Domain '%s' XML namespace must be equal to %s", errPrefix, domCfg.Name, MetaDataNameSpace)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// validate XMLNS local name
 	if !strings.EqualFold("custom", metadata.XMLName.Local) {
-		return nil, fmt.Errorf("metadata error: XML namespace local part must be equal to 'custom'")
+		e := fmt.Errorf("%s Domain '%s' XML namespace local part must be equal to 'custom'", errPrefix, domCfg.Name)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// get local interfaces list
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		return nil, fmt.Errorf("metadata error: %s", err.Error())
+		e := fmt.Errorf("%s Domain '%s' error: %s", errPrefix, domCfg.Name, err.Error())
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// prepare map of local interfaces, for easier lookups
@@ -78,25 +96,20 @@ func GetNetworkConfigFromMetadataXML(domCfg *libvirtxml.Domain) (map[string]stri
 
 		// check if local interface exists
 		if _, ok := mIfaces[el.ParentDevice]; !ok {
-			customErrors = append(customErrors, fmt.Sprintf("local interface '%s' does not exist", el.ParentDevice))
+			Logger.Printf("%s Domain '%s' local interface '%s' does not exist\n", errPrefix, domCfg.Name, el.ParentDevice)
 
 			continue
 		}
 
 		// validate MAC address
 		if !strings.HasPrefix(el.MacAddress, MACAddressQemuPrefix) {
-			customErrors = append(customErrors, fmt.Sprintf("MAC '%s' is not valid", el.MacAddress))
+			Logger.Printf("%s Domain '%s' MAC '%s' is not valid\n", errPrefix, domCfg.Name, el.MacAddress)
 
 			continue
 		}
 
 		// update output map
 		out[el.MacAddress] = el.ParentDevice
-	}
-
-	// return custom errors (for logging)
-	if len(customErrors) != 0 {
-		return out, fmt.Errorf("metadata error: %s", strings.Join(customErrors, " ,"))
 	}
 
 	// no errors, YAY!

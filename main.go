@@ -2,21 +2,17 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 )
 
 func main() {
 
+	// closing logfile
+	defer Fd.Close()
+
 	// GracefullExit logs error to defined logger and exits gracefully
 	GracefullExit := func(err error) {
-
-		// log non-empty errors
-		if err != nil {
-			log.Println(err)
-		}
-
 		// exit with 0 code, else libvirt daemon will fail to start VM
 		os.Exit(0)
 	}
@@ -45,13 +41,11 @@ func main() {
 
 			// check debug flag
 			if !strings.EqualFold(os.Getenv("DEBUG"), "true") {
-
 				// apply MAC Anti-Spoof Config
 				err = ConfigMacAntiSpoof(cfg)
 				if err != nil {
 					GracefullExit(err)
 				}
-
 			} else {
 				// do debug printing (virsh dumpxml vm1 | DEBUG=true ./qemu vm1 prepare begin -)
 				for _, el := range cfg {
@@ -85,13 +79,11 @@ func main() {
 
 			// check debug flag
 			if !strings.EqualFold(os.Getenv("DEBUG"), "true") {
-
 				// de-apply MAC Anti-Spoof Config
 				err = UnConfigMacAntiSpoof(cfg)
 				if err != nil {
 					GracefullExit(err)
 				}
-
 			} else {
 				// do debug printing (virsh dumpxml vm1 | DEBUG=true ./qemu vm1 stopped end -)
 				for _, el := range cfg {

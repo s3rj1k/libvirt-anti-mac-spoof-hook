@@ -11,25 +11,34 @@ import (
 // for which anti-spoof security can be applied, map[string]string (key = MAC address, value = device)
 func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]string, error) {
 
-	// declare custom error strings
-	customErrors := make([]string, 0)
+	// prefix for interface config errors logging
+	const errPrefix = "inteface config error:"
 
 	// declare output variable
 	out := make(map[string]string)
 
 	// check Domain existence
 	if domCfg == nil {
-		return nil, fmt.Errorf("interface config error: empty Domain XML")
+		e := fmt.Errorf("%s empty Domain XML", errPrefix)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// check Devices existence
 	if domCfg.Devices == nil {
-		return nil, fmt.Errorf("interface config error: no devices in Domain XML")
+		e := fmt.Errorf("%s Domain '%s' no devices in Domain XML", errPrefix, domCfg.Name)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// check Interface existence
 	if domCfg.Devices.Interfaces == nil {
-		return nil, fmt.Errorf("interface config error: no interfaces defined in Domain XML")
+		e := fmt.Errorf("%s Domain '%s' no interfaces defined in Domain XML", errPrefix, domCfg.Name)
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// loop-over interfaces
@@ -48,39 +57,34 @@ func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]
 			domCfg.Devices.Interfaces[i].Source.Hostdev != nil ||
 			domCfg.Devices.Interfaces[i].Source.UDP != nil {
 
-			// customErrors = append(customErrors, fmt.Sprintf("device type with MAC '%s' is not supported", domCfg.Devices.Interfaces[i].MAC.Address))
+			Logger.Printf("%s device type with MAC '%s' is not supported\n", errPrefix, domCfg.Devices.Interfaces[i].MAC.Address)
 
 			continue
 		}
 
 		// check if 'Direct' device type is defined
 		if domCfg.Devices.Interfaces[i].Source.Direct == nil {
-			customErrors = append(customErrors, fmt.Sprintf("device type with MAC '%s' must be of 'Direct'", domCfg.Devices.Interfaces[i].MAC.Address))
+			Logger.Printf("%s Domain '%s' device type with MAC '%s' must be of 'Direct'\n", errPrefix, domCfg.Name, domCfg.Devices.Interfaces[i].MAC.Address)
 
 			continue
 		}
 
 		// check if 'Direct' device type has proper mode set (bridge or private)
 		if !strings.EqualFold(domCfg.Devices.Interfaces[i].Source.Direct.Mode, "bridge") && !strings.EqualFold(domCfg.Devices.Interfaces[i].Source.Direct.Mode, "private") {
-			customErrors = append(customErrors, fmt.Sprintf("device of 'Direct' type with MAC '%s' must have mode set to 'bridge' or 'private'", domCfg.Devices.Interfaces[i].MAC.Address))
+			Logger.Printf("%s Domain '%s' device of 'Direct' type with MAC '%s' must have mode set to 'bridge' or 'private'\n", errPrefix, domCfg.Name, domCfg.Devices.Interfaces[i].MAC.Address)
 
 			continue
 		}
 
 		// validate MAC address
 		if !strings.HasPrefix(domCfg.Devices.Interfaces[i].MAC.Address, MACAddressQemuPrefix) {
-			customErrors = append(customErrors, fmt.Sprintf("MAC '%s' is not valid", domCfg.Devices.Interfaces[i].MAC.Address))
+			Logger.Printf("%s Domain '%s' MAC '%s' is not valid\n", errPrefix, domCfg.Name, domCfg.Devices.Interfaces[i].MAC.Address)
 
 			continue
 		}
 
 		// add to output
 		out[domCfg.Devices.Interfaces[i].MAC.Address] = domCfg.Devices.Interfaces[i].Source.Direct.Dev
-	}
-
-	// return custom errors (for logging)
-	if len(customErrors) != 0 {
-		return out, fmt.Errorf("interface config error: %s", strings.Join(customErrors, " ,"))
 	}
 
 	// no errors, YAY!
