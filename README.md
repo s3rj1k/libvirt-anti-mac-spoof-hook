@@ -16,9 +16,8 @@ virsh dumpxml vm1 | DEBUG=true ./qemu vm1 prepare begin -
 virsh dumpxml vm1 | DEBUG=true ./qemu vm1 stopped end -
 ```
 
-ToDo:
-  - add proper logging to file, /var/log/libvirt/qemu/qemu-hook.log
-  ...
+Logging:
+  - /var/log/libvirt/qemu/qemu-hook.log
 
 XML inside virsh edit:
 ```xml
