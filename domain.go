@@ -27,7 +27,10 @@ func GetDomainXML(stdin io.Reader) (*libvirtxml.Domain, error) {
 	// fail on scanner error, not EOF
 	err := scanner.Err()
 	if err != nil {
-		return nil, fmt.Errorf("domain XML error: %s", err.Error())
+		e := fmt.Errorf("domain XML error: %s", err.Error())
+		Logger.Println(e)
+
+		return nil, e
 	}
 
 	// declare Libvirt Domain object
@@ -36,7 +39,10 @@ func GetDomainXML(stdin io.Reader) (*libvirtxml.Domain, error) {
 	// decode XML to Libvirt Domain object
 	err = domCfg.Unmarshal(strings.Join(lines, ""))
 	if err != nil {
-		return nil, fmt.Errorf("domain XML error: %s", err.Error())
+		e := fmt.Errorf("domain XML error: %s", err.Error())
+		Logger.Println(e)
+		
+		return nil, e
 	}
 
 	return domCfg, nil
