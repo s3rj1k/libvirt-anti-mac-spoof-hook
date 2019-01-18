@@ -41,7 +41,7 @@ func GetDomainXML(stdin io.Reader) (*libvirtxml.Domain, error) {
 	if err != nil {
 		e := fmt.Errorf("domain XML error: %s", err.Error())
 		Logger.Println(e)
-		
+
 		return nil, e
 	}
 

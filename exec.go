@@ -20,7 +20,7 @@ func RunCommand(name string, arg ...string) RunCommandOutput {
 	var err error
 
 	// declare cmd object
-	cmd := exec.Command(name, arg...)
+	cmd := exec.Command(name, arg...) // nolint: gosec
 
 	// set full command as string, for logging purposes
 	if cmd.Args == nil || len(cmd.Args) == 0 {

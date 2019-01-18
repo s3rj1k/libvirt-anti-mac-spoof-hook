@@ -30,7 +30,7 @@ func init() {
 	}
 
 	// create/open log file
-	Fd, err := os.OpenFile(LogFilePath, flag, 0666)
+	Fd, err = os.OpenFile(LogFilePath, flag, 0666) // nolint: gosec
 	if err != nil {
 		log.Fatalf("error opening log file: %v", err)
 	}
