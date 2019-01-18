@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"strings"
 )
@@ -9,10 +10,23 @@ import (
 func main() {
 
 	// closing logfile
-	defer Fd.Close()
+	defer func(fd *os.File) {
+		err := fd.Close()
+		if err != nil {
+			log.Fatalf("error closing log file: %v", err)
+		}
+	}(Fd)
 
 	// GracefullExit logs error to defined logger and exits gracefully
 	GracefullExit := func(err error) {
+
+		// log hook exit
+		if err != nil {
+			Logger.Println("graceful exit for libvirt, but error occurred")
+		} else {
+			Logger.Println("graceful exit for libvirt, no errors occurred")
+		}
+
 		// exit with 0 code, else libvirt daemon will fail to start VM
 		os.Exit(0)
 	}
@@ -26,6 +40,8 @@ func main() {
 
 		// switch on: `qemu vm1 prepare {begin} -`
 		case "begin":
+
+			Logger.Println("hook: started, begin")
 
 			// get Libvirt Domain XML as object
 			domCfg, err := GetDomainXML(os.Stdin)
@@ -64,6 +80,8 @@ func main() {
 
 		// switch on: `qemu vm1 stopped {end} -`
 		case "end":
+
+			Logger.Println("hook: stopped, end")
 
 			// get Libvirt Domain XML as object
 			domCfg, err := GetDomainXML(os.Stdin)
