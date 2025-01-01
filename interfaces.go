@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/libvirt/libvirt-go-xml"
+	libvirtxml "github.com/libvirt/libvirt-go-xml"
 )
 
 // GetSupportedInterfacesFromDomainXML parses Libvirt and returns supported list of interface
 // for which anti-spoof security can be applied, map[string]string (key = MAC address, value = device)
 func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]string, error) {
-
 	// prefix for interface config errors logging
 	const errPrefix = "inteface config error:"
 
@@ -43,7 +42,6 @@ func GetSupportedInterfacesFromDomainXML(domCfg *libvirtxml.Domain) (map[string]
 
 	// loop-over interfaces
 	for i := range domCfg.Devices.Interfaces {
-
 		// skip not-supported interface types
 		if domCfg.Devices.Interfaces[i].Source.User != nil ||
 			domCfg.Devices.Interfaces[i].Source.Ethernet != nil ||

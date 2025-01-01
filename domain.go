@@ -6,12 +6,11 @@ import (
 	"io"
 	"strings"
 
-	"github.com/libvirt/libvirt-go-xml"
+	libvirtxml "github.com/libvirt/libvirt-go-xml"
 )
 
 // GetDomainXML acquires Libvirt Domain XML
 func GetDomainXML(stdin io.Reader) (*libvirtxml.Domain, error) {
-
 	// prepare scanner
 	scanner := bufio.NewScanner(stdin)
 

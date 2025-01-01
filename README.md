@@ -2,7 +2,7 @@
 
 This hook adds MAC anti-spoofing functionality to libvirt
 
-Docs: 
+Docs:
   - https://www.libvirt.org/hooks.html
   - https://libvirt.org/formatdomain.html#elementsMetadata
 

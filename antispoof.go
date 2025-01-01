@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/libvirt/libvirt-go-xml"
+	libvirtxml "github.com/libvirt/libvirt-go-xml"
 )
 
 // MacAntiSpoofConfig stores data for iproute2 based MAC Anti-Spoof config (using macvlan mode source)
@@ -13,7 +13,6 @@ type MacAntiSpoofConfig struct {
 
 // GetAntiSpoofConfig returns config object for iproute2
 func GetAntiSpoofConfig(domCfg *libvirtxml.Domain) ([]MacAntiSpoofConfig, error) {
-
 	// declare output variable
 	out := make([]MacAntiSpoofConfig, 0)
 

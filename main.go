@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	// closing logfile
 	defer func(fd *os.File) {
 		err := fd.Close()
@@ -19,7 +18,6 @@ func main() {
 
 	// GracefullExit logs error to defined logger and exits gracefully
 	GracefullExit := func(err error) {
-
 		// log hook exit
 		if err != nil {
 			Logger.Println("graceful exit for libvirt, but error occurred")
@@ -35,12 +33,9 @@ func main() {
 
 	// switch on: `qemu vm1 {prepare} begin -`
 	case "prepare":
-
 		switch os.Args[3] {
-
 		// switch on: `qemu vm1 prepare {begin} -`
 		case "begin":
-
 			Logger.Println("hook: started, begin")
 
 			// get Libvirt Domain XML as object
@@ -68,19 +63,14 @@ func main() {
 					fmt.Printf("MAC '%s', Parent device '%s', Child device '%s'\n", el.MAC, el.ParentDevice, el.ChildDevice)
 				}
 			}
-
 		default:
 			GracefullExit(nil)
 		}
-
 	// switch on: `qemu vm1 {stopped} end -`
 	case "stopped":
-
 		switch os.Args[3] {
-
 		// switch on: `qemu vm1 stopped {end} -`
 		case "end":
-
 			Logger.Println("hook: stopped, end")
 
 			// get Libvirt Domain XML as object
@@ -108,11 +98,9 @@ func main() {
 					fmt.Printf("MAC '%s', Parent device '%s', Child device '%s'\n", el.MAC, el.ParentDevice, el.ChildDevice)
 				}
 			}
-
 		default:
 			GracefullExit(nil)
 		}
-
 	default:
 		GracefullExit(nil)
 	}

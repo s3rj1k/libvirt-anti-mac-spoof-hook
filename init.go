@@ -15,7 +15,6 @@ var (
 
 // nolint: gochecknoinits
 func init() {
-
 	// flag for opening LogFile
 	var flag int
 

@@ -7,7 +7,6 @@ import (
 
 // ConfigMacAntiSpoof configures MAC anti-spoofing according to input config
 func ConfigMacAntiSpoof(cfg []MacAntiSpoofConfig) error {
-
 	// prefix for antispoof config errors logging
 	const errPrefix = "antispoof config error:"
 
@@ -36,7 +35,6 @@ func ConfigMacAntiSpoof(cfg []MacAntiSpoofConfig) error {
 
 // UnConfigMacAntiSpoof removes upper macvlan (in mode source) interface from system
 func UnConfigMacAntiSpoof(cfg []MacAntiSpoofConfig) error {
-
 	// prefix for antispoof config errors logging
 	const errPrefix = "antispoof config error:"
 

@@ -15,9 +15,10 @@ type RunCommandOutput struct {
 
 // RunCommand is a wrapper to run command
 func RunCommand(name string, arg ...string) RunCommandOutput {
-
-	var outputObj RunCommandOutput
-	var err error
+	var (
+		outputObj RunCommandOutput
+		err       error
+	)
 
 	// declare cmd object
 	cmd := exec.Command(name, arg...) // nolint: gosec

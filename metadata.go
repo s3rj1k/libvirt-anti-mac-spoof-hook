@@ -6,7 +6,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/libvirt/libvirt-go-xml"
+	libvirtxml "github.com/libvirt/libvirt-go-xml"
 )
 
 // DomainMetadata describes custom metadata for Libvirt domain
@@ -23,7 +23,6 @@ type DomainMetadata struct {
 
 // GetNetworkConfigFromMetadataXML parses Libvirt domain XML and returns map[string]string (key = MAC address, value = parent device)
 func GetNetworkConfigFromMetadataXML(domCfg *libvirtxml.Domain) (map[string]string, error) {
-
 	// prefix for metadata errors logging
 	const errPrefix = "metadata error:"
 
@@ -93,7 +92,6 @@ func GetNetworkConfigFromMetadataXML(domCfg *libvirtxml.Domain) (map[string]stri
 
 	// loop-over network elements
 	for _, el := range metadata.Network {
-
 		// check if local interface exists
 		if _, ok := mIfaces[el.ParentDevice]; !ok {
 			Logger.Printf("%s Domain '%s' local interface '%s' does not exist\n", errPrefix, domCfg.Name, el.ParentDevice)
